@@ -1,0 +1,77 @@
+---
+title: "R_Proficiency_HW"
+author: "Yiran Zhang"
+date: "2025-02-06"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+```
+
+-   Load the mob analysis data
+
+```{r}
+mob <- read.csv("https://raw.githubusercontent.com/wellsdata/CompText_Jour/main/data/mob_analysis_data.csv")
+```
+
+-   Describe the number of rows and columns in the dataset
+
+```{r}
+nrow(mob)
+ncol(mob)
+```
+
+-Create a table that displays a count of the top 15 newspaper entries
+
+```{r}
+
+Newspaper <- mob %>%
+  filter(!is.na(Newspaper)) |>
+  group_by(Newspaper) |>
+  count(Newspaper) |>
+  arrange(desc(n)) |>
+  head(n = 15)
+
+Newspaper
+
+```
+
+-Create a table that counts the different entries in the "keyword" column
+
+```{r}
+keyword <- mob %>%
+  count(keyword) %>%
+  group_by(keyword) %>%
+  arrange(desc(n))
+
+keyword
+
+```
+
+-Create a table that counts all entries by year
+
+```{r}
+years <- mob %>%
+  count(Year) %>%
+  group_by(Year) %>%
+  arrange(desc(n))
+
+years
+```
+
+-Create a simple column ggplot chart that shows the total entries by year
+
+```{r}
+ mob %>%
+    count(Year) %>%
+    group_by(Year) %>%
+ ggplot(aes(x = Year, y = n, fill = n)) +
+  geom_col(position = "dodge") +
+  theme(legend.position = "none") +
+  labs(title = "Total Entries by Year",
+       y="Numbers",
+       x="Count")
+```
+
+Summary: I found that this dataset consists of 3,836 reports. The top entries come from The Birmingham Age-Herald Magazine, with 118 reports. The key terms in these reports include "mob", "masked", "mobs", and "masked men". The trend figure shows a bimodal pattern, with two peaks around the 1860s and 1900s. And the highest number of crime reports is in 1903, with a total of 246 reports. The main flaw I found about the datasest is the redundancy of key words. For example, mob and mobs represent the same concept, but are coded as two different and separate topics.
