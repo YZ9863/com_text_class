@@ -1,0 +1,42 @@
+
+
+
+
+CE Noticias Financieras English
+November 21, 2024 Thursday
+
+
+Copyright 2024 Content Engine, LLC.
+All Rights Reserved
+Copyright 2024 CE Noticias Financieras All Rights Reserved
+Length: 546 words
+Body
+
+
+       <p dir="ltr">Major workforce reductions at companies like Intel and Enphase are part of broader restructuring efforts in response to shaky financial performances. In parallel, the rise of AI-powered newsrooms is reshaping the media landscape, offering new avenues for rejuvenating journalism. </p>  <p>Meanwhile, across various industries, the demand for clearer Diversity, Equity, and Inclusion (DEI) stances is intensifying among job seekers, reflecting broader societal shifts. Additionally, social movements like South Korea's 4B are challenging traditional norms, pushing both societal and economic trends in new directions. </p>
+  <p> </p>  <p dir="ltr">The Week In Talent:</p>  <p> </p>  <p dir="ltr"><strong>Industry Developments </strong></p>  <p dir="ltr">Intel Reintroduces Free Coffee to Boost Morale After Layoffs</p>  <p dir="ltr">Following significant losses in the second quarter of 2024, Intel undertook a major restructuring effort aimed at reducing costs and improving efficiency, resulting in a 15% workforce reduction, or approximately 15,000 jobs. In an effort to boost morale, Intel has reintroduced free coffee and tea; however, this measure alone is unlikely to alleviate employee anxiety. </p>  <p>AI-Powered Newsrooms: WAN-IFRA & OpenAI's Global Journalism Push</p>  <p dir="ltr">The World Association of News Publishers (WAN-IFRA) and OpenAI have launched the Newsroom AI Catalyst, a global initiative designed to help 128 newsrooms integrate artificial intelligence (AI) for content creation, data analysis, and user experience. The program aims to address the critical challenge of declining revenue by offering hands-on training and strategic guidance. </p>  <p>Enphase to Cut 17% of Global Workforce Amid Solar Decline</p>  <p dir="ltr">Enphase Energy will cut 17% of its workforce, approximately 500 employees, citing a decline in residential solar demand, particularly in Europe. The restructuring includes closing its Guadalajara manufacturing site and consolidating production across locations in the US, India, and China. Expected to be completed by 1Q25, the initiative aims to achieve cost savings by 2025, despite restructuring charges of up to US$20 million in 4Q24.</p>  <p>20% of Hiring Managers Want Employers to Clarify DEI Stance</p>  <p dir="ltr">A recent survey by Express Employment Professionals and Harris Poll reveals that 37% of job seekers want companies to take a clear stance on Diversity, Equity, and Inclusion (DEI), with nearly half willing to leave if they disagree with a company's position. In response, 65% of hiring managers agree that employers should address key issues important to prospective employees, with 30% highlighting DEI as a priority. </p>  <p> </p>  <p><strong>International </strong></p>  <p dir="ltr">The 4B Movement's Impact on Economy</p>  <p dir="ltr">The 4B Movement, originated in South Korea, has garnered global attention, particularly in the United States after the election of Donald Trump. By challenging societal norms tied to marriage, motherhood, and relationships, the movement advocates for women's autonomy. However, as its influence spreads, questions about its broader economic impact-particularly on labor force participation and long-term stability are emerging.</p>       
+Classification
+
+
+Language: ENGLISH
+
+Publication-Type: Newspaper
+
+Journal Code: CENFENG
+
+Subject: LAYOFFS (96%); SOCIETY, SOCIAL ASSISTANCE & LIFESTYLE (91%); ARTIFICIAL INTELLIGENCE (90%); BUSINESS NEWS (90%); CORPORATE RESTRUCTURING (90%); ECONOMIC CONDITIONS (90%); ECONOMY & ECONOMIC INDICATORS (90%); LABOR FORCE (90%); LAYOFFS & DISMISSALS (90%); DIVERSITY & INCLUSION (89%); RECRUITMENT & HIRING (89%); DATA ANALYTICS (78%); INTERNATIONAL ORGANIZATIONS & BODIES (78%); MANAGERS & SUPERVISORS (78%); NEGATIVE BUSINESS NEWS (78%); TRENDS (78%); EMPLOYMENT SEARCH (76%); COMPANY LOSSES (73%); ECONOMICS (73%); MANUFACTURING FACILITIES (72%); POLLS & SURVEYS (72%); CLOSINGS (69%); Talent (%)
+
+Company:  INTEL CORP (90%);  ENPHASE ENERGY INC (74%)
+
+Ticker: INTC (NASDAQ) (90%); ENPH (NASDAQ) (74%)
+
+Industry: NAICS334413 SEMICONDUCTOR & RELATED DEVICE MANUFACTURING (90%); NAICS335312 MOTOR & GENERATOR MANUFACTURING (74%); ARTIFICIAL INTELLIGENCE (90%); DATA ANALYTICS (78%); MANUFACTURING (78%); MANUFACTURING FACILITIES (72%)
+
+Person: DONALD TRUMP (74%)
+
+Geographic: SOUTH KOREA (92%); UNITED STATES (92%); CHINA (79%); EUROPE (79%); INDIA (79%)
+
+Load-Date: November 22, 2024
+
+
+End of Document

@@ -1,0 +1,243 @@
+---
+title: "Week 6 Sentiment_Analysis"
+author: "YiranZhang"
+date: "2025-03-09"
+output: html_document
+---
+
+# Jour689 Spring 2025
+
+For this exercise, you will use your project file dataframe to conduct a basic sentiment analysis of your articles
+
+Step #1: load the following libraries: tidyverse, textdata, tidytext, quanteda, rio
+
+```{r}
+library(tidyverse)
+library(textdata)
+library(tidytext)
+library(quanteda)
+library(rio)
+library(ggplot2)
+```
+
+#import your "articles_df.csv" that contains the text of all of your articles in one dataframe. This is the spreadsheet we created last week in the "Text Compiler-Bigrams" exercise.
+
+```{r}
+project <- read_csv("4B_FullArticles.csv")
+```
+
+#Tokenize sentence into a df, remove stopwords
+
+```{r}
+sentence <- str_replace_all(project$sentence, "- ", "")
+sentence_tk <- tibble(sentence,)
+
+sentence_tokenized <- sentence_tk %>%
+  unnest_tokens(word,sentence)
+
+sentence_tokenized
+
+stopwords <- stop_words
+stopwords
+
+stopwords |> 
+  count(lexicon)
+
+data(stop_words)
+
+sentence_tokenized <- sentence_tokenized %>%
+  anti_join(stop_words, by = c("word" = "word")) %>%
+  filter(word != "temp_file") %>%
+  filter(word != "stories_corpus") %>%
+  filter(!grepl('[0-9]', word))
+
+```
+
+# Count the words in descending order
+
+```{r}
+# Word Count
+
+sentence_word_ct <- sentence_tokenized %>%
+  count(word, sort=TRUE)
+
+sentence_word_ct
+
+```
+
+# NRC Sentiment
+
+NRC Lexicon on Whole Corpus "The nrc lexicon categorizes words in a binary fashion ("yes"/"no") into categories of positive, negative, anger, anticipation, disgust, fear, joy, sadness, surprise, and trust."
+
+```{r}
+# cite this lexicon
+#install.packages("textdata")
+nrc_sentiments <- get_sentiments("nrc")
+afinn_sentiments <- get_sentiments("afinn")
+```
+
+#Count the NRC sentiments
+
+```{r}
+nrc_sentiments %>%
+  count(sentiment, sort = TRUE)
+```
+
+### Join the NRC Sentiments with the tokenized data
+
+```{r}
+
+sentiments_all <- sentence_tokenized %>%
+  inner_join(nrc_sentiments, by = "word")  
+
+```
+
+### Count Overall Sentiment with NRC
+
+```{r}
+sentence_tokenized %>%
+  inner_join(nrc_sentiments) %>%
+  count(word, sort = TRUE)
+
+sentiments_all %>%
+  count(sentiment, sort = TRUE)
+
+over_sen <-sentiments_all %>%
+  count(sentiment, sort = TRUE)
+
+  
+```
+
+## Use ggplot to chart Sentiments with the tokenized data
+
+
+```{r}
+ggplot(over_sen, aes(x = reorder(sentiment,n), y = n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  labs(title = "NRC Sentiment Analysis for 4B Movements Reports",
+       x = "Sentiment",
+       y = NULL)
+```
+
+
+```{r}
+
+sentiments_all %>%
+  count(sentiment, word) %>%
+  group_by(sentiment) %>%
+  slice_max(n, n = 10) %>%  
+  ungroup() %>%
+  mutate(word = reorder_within(word, n, sentiment)) %>%  
+  ggplot(aes(n, word, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +  
+  scale_y_reordered() + 
+  labs(x = "Contribution to sentiment",
+       y = NULL)
+
+```
+
+
+# Create a new dataframe just with the NRC "anger" sentiment
+
+```{r}
+nrc_anger <- nrc_sentiments %>% 
+  filter(sentiment == "anger")
+
+sentence_tokenized %>%
+  inner_join(nrc_anger) %>%
+  count(word, sort = TRUE)
+
+```
+
+
+# I tried wordcloud as a fun exercise! #
+I found donald trump are classified as positive/suprise, but I think in this dataset, they should be treated as stop-words. So I added them and did the sentiment analysis again.
+
+```{r}
+library(wordcloud)
+
+sentence_tokenized %>%
+  anti_join(stop_words) %>%
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 100))
+```
+
+```{r}
+library(reshape2)
+
+sentence_tokenized %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+  comparison.cloud(colors = c("gray20", "gray80"),
+                   max.words = 100)
+```
+
+
+```{r}
+custom_stop_words <- bind_rows(tibble(word = c("trump", "donald"),  
+                                      lexicon = c("custom", "custom")), 
+                               stop_words)
+custom_stop_words
+```
+
+```{r}
+sentence_tokenized <- sentence_tokenized %>%
+  anti_join(custom_stop_words, by = "word" ) %>%  
+  filter(word != "temp_file") %>%  
+  filter(word != "stories_corpus") %>%  
+  filter(!grepl('[0-9]', word))
+```
+
+
+### Count Overall Sentiment with NRC
+
+```{r}
+sentiments_all <- sentence_tokenized %>%
+  inner_join(nrc_sentiments, by = "word")  
+
+sentence_tokenized %>%
+  inner_join(nrc_sentiments) %>%
+  count(word, sort = TRUE)
+
+over_sen <- sentiments_all %>%
+  count(sentiment, sort = TRUE)
+
+print(over_sen)
+
+```
+
+```{r}
+ggplot(over_sen, aes(x = reorder(sentiment,n), y = n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  labs(title = "NRC Sentiment Analysis for 4B Movements Reports",
+       x = "Sentiment",
+       y = NULL)
+```
+```{r}
+sentence_tokenized %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+  comparison.cloud(colors = c("gray20", "gray80"),
+                   max.words = 100)
+```
+
+```{r}
+sentiments_all %>%
+  count(sentiment, word) %>%
+  group_by(sentiment) %>%
+  slice_max(n, n = 10) %>%  
+  ungroup() %>%
+  mutate(word = reorder_within(word, n, sentiment)) %>%  
+  ggplot(aes(n, word, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +  
+  scale_y_reordered() + 
+  labs(x = "Contribution to sentiment",
+       y = NULL)
+```
+
+Note: 
+After treating “Donald Trump” as stop words, the “surprise” sentiment became the smallest column. I found that “Trump” was misclassified because, in the word cloud, it appeared with the largest font. However, I am sure there are other miscoded words that I haven’t identified because they are less obvious. My question is: how can I check and ensure that all words are categorized as the correct sentiment?

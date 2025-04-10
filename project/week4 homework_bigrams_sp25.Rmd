@@ -1,0 +1,133 @@
+---
+title: "Week 4 Bigrams Homework"
+author: "Rob Wells"
+date: '2025-02-20'
+output: html_document
+---
+
+# Jour 689 Spring 2025:
+
+In this exercise, you will import the Nexis spreadsheet and create bigrams from the headlines
+
+Setup. These instructions are important. Follow them carefully
+
+1) Create a new folder called "bigrams_week_5" in your class folder
+2) Copy this file to "bigrams_week_5"
+3) Copy your spreadsheet to "bigrams_week_5"
+4) Create an .Rproj file that points to "bigrams_week_5"
+
+```{r}
+#load tidyverse, tidytext, rio, janitor libraries
+
+library(tidyverse)
+library(tidytext)
+library(janitor)
+library(rio)
+library(dplyr)
+
+```
+
+```{r}
+#Import spreadsheet using rio::import and clean the names
+
+project <- rio::import("Results list for__4B movement_.XLSX")
+names(project)
+clean_names(project)
+
+```
+
+
+I first checked and delected duplicated cases.
+
+```{r}
+
+project <- project |> 
+  filter(!is.na(Title)) |>  
+  distinct(Title, .keep_all = TRUE) 
+
+```
+
+
+# Tokenize the hlead column
+Copy the code from the in-class bigrams exercise and tokenize just the hlead column from your dataframe
+
+Hint: you're changing just one variable
+
+```{r}
+Hlead <- str_replace_all(project$Hlead, "- ", "")
+hlead_tk <- tibble(Hlead,)
+
+hlead_tokenized <- hlead_tk %>%
+  unnest_tokens(word,Hlead)
+
+hlead_tokenized
+```
+
+#Remove stopwords and count the words
+```{r}
+stopwords <- stop_words
+stopwords
+
+stopwords |> 
+  count(lexicon)
+
+```
+
+
+```{r}
+
+data(stop_words)
+
+hlead_tokenized <- hlead_tokenized %>%
+  anti_join(stop_words, by = c("word" = "word")) %>%
+  filter(word != "temp_file") %>%
+  filter(word != "stories_corpus") %>%
+  filter(!grepl('[0-9]', word))
+
+# Word Count
+
+hlead_word_ct <- hlead_tokenized %>%
+  count(word, sort=TRUE)
+
+hlead_word_ct
+
+write_csv(hlead_word_ct, "hlead_word_ct.csv")
+```
+
+
+# Create Bigrams
+
+```{r}
+bigrams <- hlead_tk %>%
+  unnest_tokens(bigram, Hlead, token="ngrams", n=2)
+
+bigrams
+
+#Filter out stop words.
+
+bigrams1 <- bigrams %>%
+  separate(bigram, c("word1", "word2"), sep = " ")
+
+bigrams2 <- bigrams1 %>%
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word) |>
+  filter(!is.na(word1)) |>
+  filter(!is.na(word2)) 
+
+bigrams2
+
+bigram3 <- bigrams2 %>%
+  count(word1, word2, sort = TRUE)
+
+bigram3
+#write_csv(stories_bigram_cts_post1940, "../output/post1940_lynch_bigram_count.csv")
+
+```
+
+# Write 250 words about what your learned analyzing the list of tokens and bigrams. Include questions about the process and any difficulties you encountered.
+
+When reviewing the tables of tokens and bigrams, I found that bigrams sorted by frequency were very effective in revealing the core theme of the dataset. The most frequent phrases were: 4B movement, South Korea, Donald Trump, Feminist movement, American women, President-elect, Social media, Election victory, Reproductive rights, Sex strike, Radical feminist, and Liberal women. For phrases with similar meanings (such as Donald Trump and Donald Trump’s), I only listed the most frequent ones.
+
+Based on those phrases, it seems that the key theme of this dataset is “What is the 4B movement?” Linking those phrases together, the 4B movement is a radical feminist movement that originated in South Korea. It spread to the U.S. during the presidential election via social media. American women, especially radical feminists and liberal women, expressed their resistance to Trump’s election victory through advocating sex strikes and fighting for reproductive rights.
+
+Although those phrases provided valuable information, they seem to be very descriptive. That is, introducing what the 4B movement is. Is this because of the nature of this particular dataset? Or is it because of my explanation? In other words, I am wondering how text mining can be used to dig deeper into insights beyond description. But overall, it is a very exciting method and I cannot wait to learn more!

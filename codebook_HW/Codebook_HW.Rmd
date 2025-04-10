@@ -1,0 +1,129 @@
+---
+title: "Codebook_HW"
+author: "YZ"
+date: "2025-03-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+#### Introduce Project ###
+
+My Research Questions:
+RQ1: What percentage of coverage was a) prior to the presidential election; b) during the election period; and c) after the election?
+RQ2: What percentage of the coverage portrayed 4B movement in a negative way? And what percentage portrayed it in a positive way?
+
+My Codebook:
+RQ1: The cutoff data for presidential election:
+a)	prior_election: publication data was before 10-31-2024
+b)	during_election: publication data was from 11-1-2024 to 11-30-2024
+c)	after_election: publication data was after 12-1-2024.
+
+RQ2: The presence of specific negative or positive words:
+a)	negative_frame: Hlead include negative keywords of “hate”, “extreme”, “crazy”, “selfish”, “toxic”, “anti-family”, “anti-men”, “anti-social”, and “against tradition”.
+b)	positive_frame: Hlead include positive keywords of “brave”, “independent”, “empowered”, “rational”, “modern”, “free”, “freedom”, “autonomy”, “self-determined”, and “social progress”.
+
+### Import Data, Drop Dupulate Articles, and Clean Date ###
+```{r}
+library(tidyverse)
+library(tidytext) 
+library(quanteda)
+library(readtext)
+library(DT)
+library(lubridate)
+library(rio)
+```
+
+
+
+```{r}
+getwd()
+project <- readxl::read_excel("Results list for__4B movement_.XLSX")
+
+project <- project |> 
+  filter(!is.na(Title)) |>  
+  distinct(Title, .keep_all = TRUE) 
+
+```
+
+
+```{r}
+project$pub_date <- mdy(project$`Published date`)
+```
+
+
+### Create RQ1 Variable ###
+
+```{r}
+project <- project |> 
+  mutate(RQ1 = case_when(
+    pub_date < ymd("2024-11-01") ~ "prior_election",
+    pub_date >= ymd("2024-11-01") & pub_date <= ymd("2024-11-30") ~ "during_election",
+    pub_date >= ymd("2024-12-01") ~ "after_election",
+    TRUE ~ "unknown"
+  ))
+```
+
+
+### Create RQ2 Variable ###
+
+
+```{r}
+project <- project |> 
+  mutate(RQ2_positive = case_when(
+  str_detect(Hlead, "brave|independent|empowered|rational|modern|free|freedom|autonomy|self[- ]?determined|social progress") ~ 1,
+  TRUE ~ 0
+  ))
+
+project <- project |> 
+  mutate(RQ2_negative = case_when (
+  str_detect(Hlead, "hate|extreme|crazy|selfish|toxic|anti[- ]?family|anti[- ]?men|anti[- ]?social|against tradition") ~ 1,
+  TRUE ~ 0
+  ))
+```
+
+
+### Answer RQ ###
+
+```{r}
+table(project$RQ2_negative)
+table(project$RQ2_positive)
+table(project$RQ1)
+
+nrow(project)
+```
+
+
+```{r}
+print(paste0(
+  "RQ1: The percentage of coverage published prior to the presidential election was ",  round(prop.table(table(project$RQ1))["prior_election"] * 100, 1), "%; ",  "during the election period was ",  round(prop.table(table(project$RQ1))["during_election"] * 100, 1), "%; ",  "after the election was ",  round(prop.table(table(project$RQ1))["after_election"] * 100, 1), "%."
+))
+
+print(paste0(
+  "RQ2: The percentage of coverage portrayed 4B movement in a negative way was ",  round(prop.table(table(project$RQ2_negative))[["1"]]*100, 1), "%; ",  "in a positive way was ",  round(prop.table(table(project$RQ2_positive))[["1"]]* 100, 1), "%."
+))
+
+```

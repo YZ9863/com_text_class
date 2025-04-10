@@ -1,6 +1,6 @@
 ---
 title: "Metadata"
-author: "Wells"
+author: "Yiran Zhang"
 date: "2025-02-12"
 output: html_document
 ---
@@ -22,8 +22,7 @@ library(rio)
 
 ```{r}
 
-bmore <- rio::import("Results list for__4B movement_.XLSX")
-
+project <- rio::import("Results list for__4B movement_.XLSX")
 
 # bmore_final  <-  rbind (bmore1,bmore2) 合并两个数据表格
 ```
@@ -31,7 +30,7 @@ bmore <- rio::import("Results list for__4B movement_.XLSX")
 # Clean names
 
 ```{r}
-bmore <- bmore |> 
+project <- project |> 
   clean_names()
 
 ```
@@ -39,8 +38,11 @@ bmore <- bmore |>
 # fix date
 
 ```{r}
-bmore <- bmore |> 
+project <- project |> 
   mutate(date = as.Date(strptime(published_date, format = "%B %d, %Y %A")))
+
+project$year <- year(project$date)
+
 ```
 
 # My claude.ai query and reply:
@@ -57,4 +59,94 @@ The format string specifies:
 
 This will create a proper Date column that you can use for analysis and plotting. The resulting date will be in the standard format "2025-01-14".
 
-#count years, publications, etc. create a ggplot
+#   Describe the number of rows and columns in the dataset
+
+```{r}
+print(paste0("This dataset has", nrow(project), " rows and ", ncol(project), " columns."))
+```
+
+#   Create a table that displays a count of the top 20 newspaper_city entries. Filter out the NA values
+
+```{r}
+News_city <- project %>%
+  filter(!is.na(publication_location)) |>
+  group_by(publication_location) |>
+  count(publication_location) |>
+  arrange(desc(n)) |>
+  head(n = 15)
+
+News_city
+
+countries <- project %>%
+  filter(!is.na(countries)) |>
+  group_by(countries) |>
+  count(countries) |>
+  arrange(desc(n)) |>
+  head(n = 15)
+
+countries
+
+## Hi professor, I did not find newspaper_city column in my dataset. So I used publication_location and countries to answer this question.
+
+
+```
+
+#   Create a table that counts all entries by year. 
+```{r}
+
+Years <- project %>% 
+  filter(!is.na(year)) |>
+  count(year) %>% 
+  group_by(year) %>% 
+  arrange(desc(year))
+head(Years)
+
+```
+
+#   Create a simple column ggplot chart that shows the total entries by year
+
+```{r}
+ggplot(Years,aes(x = year, y = n,
+             fill = n)) +
+  geom_col(position = "dodge") + 
+  theme(legend.position = "none") +
+#This is your title sequence
+  labs(title = "4B Movement Reports in the North America by Year",
+       subtitle = "Source: NexisUni",
+       caption = "Graphic by Yiran Zhang, 2-16-2025",
+       y="Number of Reports",
+       x="Year")
+```
+
+# Table and charts by dates, not years
+```{r}
+
+Dates <- project %>% 
+  filter(!is.na(date)) |>
+  count(date) %>% 
+  group_by(date) %>% 
+  arrange(desc(date))
+head(Dates)
+
+```
+
+```{r}
+ggplot(Dates,aes(x = date, y = n,
+             fill = n)) +
+  geom_col(position = "dodge") + 
+  theme(legend.position = "none") +
+  scale_x_date(limits = as.Date(c("2023-01-01", "2025-02-15"))) +
+  labs(title = "4B Movement Reports in the North America by Dates",
+       subtitle = "Reports during 2023-2025: Source: NexisUni",
+       caption = "Graphic by Yiran Zhang, 2-16-2025",
+       y="Number of Reports",
+       x="dates")
+```
+
+
+#   Memo
+I found that the 4B movement is a pretty new topic in North America and only received attention since 2024, during the presidential election. Speaking of location, more than half of the reports come from America, while others are from Canada and Mexico.
+
+I found quite a few flaws in this dataset. First, there are several duplicate reports. That is, some of the news are recorded more than once in the dataset. Second, there are a lot of missing values in key variables, such as countries and publication_location. Third, the coding for these reports is inconsistent. For example, some locations are coded as cities, such as NY or LA, while most are coded as countries, such as the US or international.
+
+My question is: I wonder how to deal with the missing values warning when making charts.

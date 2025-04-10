@@ -1,0 +1,385 @@
+---
+title: "4B movement - Topic Model"
+author: "YZ"
+date: "2025-04-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+### Set Up ###
+
+```{r include=FALSE}
+# set options
+options(stringsAsFactors = F)         # no automatic data transformation
+options("scipen" = 100, "digits" = 4) # suppress math annotation
+# load packages
+here::here()
+library(tidyverse)
+library(tidytext)
+library(rio)
+library(readtext)
+#topic modeling
+library(quanteda)
+library(tm)
+library(topicmodels)
+library(lda)
+library(ldatuning)
+# from tutorial packages
+library(DT)
+library(knitr) 
+library(kableExtra) 
+library(reshape2)
+library(ggplot2)
+library(wordcloud)
+library(pals)
+library(SnowballC)
+library(flextable)
+
+```
+
+### Import Data
+
+```{r include=FALSE}
+#import 11,194 text files that were compiled into a df  
+project <- read_csv("4B_FullArticles.csv")
+
+project <- project %>%
+  mutate(date_clean = mdy(str_remove(published_date, " \\w+$")),
+         year = year(date_clean))
+```
+
+# Topic Modeling Predmoninantly White-Owned Papers
+
+### Process into corpus object
+
+
+```{r}
+textdata <- project %>% 
+  select(filename, sentence, date_clean,section) %>% 
+  as.data.frame() %>% 
+  rename(doc_id = filename, text= sentence)
+
+textdata <- textdata %>%
+  mutate(opinion = case_when(
+    str_detect(tolower(section), "op") ~ "opinion",
+    !str_detect(tolower(section), "op") ~ "news"
+  ))
+
+textdata %>%
+  count(opinion, sort = TRUE)
+
+english_stopwords <- readLines("https://slcladal.github.io/resources/stopwords_en.txt", encoding = "UTF-8")
+data("stop_words")
+custom_words <- c(
+  "copyright", "reserved", "uwire", "u-wire", "publication", "publication-type",
+  "newspaper", "language", "english", "section", "pg", "length", "words", 
+  "document", "load-date", "date", "organization", "geographic", "news", 
+  "daily", "cougar", "wellesley", "clemson", "houston", "tx", 
+  "opinion", "wednesday", "friday", "subject", "content"
+)
+custom_stop_words <- bind_rows(
+  tibble(word = custom_words, lexicon = "custom"),
+  stop_words
+)
+
+corpus <- Corpus(DataframeSource(textdata))
+# Preprocessing chain
+processedCorpus <- tm_map(corpus, content_transformer(tolower))
+processedCorpus <- tm_map(processedCorpus, removeWords, english_stopwords)
+processedCorpus <- tm_map(processedCorpus, removePunctuation, preserve_intra_word_dashes = TRUE)
+#processedCorpus <- tm_map(processedCorpus, removeNumbers) Because 4B movement has numbers in the name, so I skip this
+processedCorpus <- tm_map(processedCorpus, stemDocument, language = "en")
+processedCorpus <- tm_map(processedCorpus, stripWhitespace)
+```
+
+
+
+```{r tm3a}
+#DTM: rows correspond to the documents in the corpus. Columns correspond to the terms in the documents. Cells correspond to the weights of the terms. (Girder)
+# compute document term matrix with terms >= minimumFrequency
+minimumFrequency <- 5
+DTM <- DocumentTermMatrix(processedCorpus, control = list(bounds = list(global = c(minimumFrequency, Inf))))
+# have a look at the number of documents and terms in the matrix
+dim(DTM)
+# due to vocabulary pruning, we have empty rows in our DTM
+# LDA does not like this. So we remove those docs from the
+# DTM and the metadata
+sel_idx <- slam::row_sums(DTM) > 0
+DTM <- DTM[sel_idx, ]
+textdata <- textdata[sel_idx, ]
+#5 term minimum[1] 1387 3019
+#5 term minimum[1] 308597 10339
+
+```
+
+## Topic proportions over opinion {.unnumbered}
+
+We examine topics in the data over opinion by aggregating mean topic proportions per phases These aggregated topic proportions can then be visualized, e.g. as a bar plot.
+
+Articles per phases
+
+```{r}
+#install.packages("formattable")
+articles_opinion <- textdata %>% 
+  distinct(doc_id, .keep_all=TRUE) %>% 
+  count(opinion) %>% 
+  mutate(pct_total= (n/sum(n))) %>% 
+  mutate(pct_total= formattable::percent(pct_total)) %>% 
+  # mutate(pct_total = round(pct_total, 1)) %>% 
+  arrange(desc(opinion))
+
+library(kableExtra)
+articles_opinion %>%
+  kbl(caption = "LOC Lynching Articles by opinion (n=9,589, 10/23/2024)", font_size = 30) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>% 
+  column_spec(1, bold = T, border_right = T) %>%
+  column_spec(2, width = "5em") %>% 
+  column_spec(3, width = "5em", background = "yellow") 
+
+#Fact check 9589 articles
+#sum(articles_opinions$n)
+```
+
+```{r tm12}
+# number of topics
+# K <- 20
+K <- 5
+# set random number generator seed
+set.seed(3815)
+#Latent Dirichlet Allocation, LDA
+topicModel2 <- LDA(DTM, K, method="Gibbs", control=list(iter = 500, verbose = 25, alpha = 0.2))
+tmResult <- posterior(topicModel2)
+theta <- tmResult$topics
+beta <- tmResult$terms
+topicNames <- apply(terms(topicModel2, 10), 2, paste, collapse = " ")  # reset topicnames
+```
+
+### Mean topic proportions per opinion
+
+```{r}
+# Step 1: Check dimensions
+n_theta <- nrow(theta)
+n_textdata <- length(textdata$opinion)
+
+cat("Number of rows in theta: ", n_theta, "\n")
+cat("Number of documents in textdata: ", n_textdata, "\n")
+
+# Check if textdata contains all the documents in theta
+common_ids <- intersect(rownames(theta), textdata$doc_id) # Assuming textdata has a 'doc_id' column
+
+# Filter textdata to include only the documents present in theta
+textdata_filtered <- textdata[textdata$doc_id %in% common_ids, ]
+
+# Check dimensions after filtering
+n_textdata_filtered <- nrow(textdata_filtered)
+cat("Number of documents in filtered textdata: ", n_textdata_filtered, "\n")
+
+# Ensure the lengths match now
+if (n_theta != n_textdata_filtered) {
+  stop("The number of rows in 'theta' still does not match the length of 'textdata_filtered$opinion'.")
+}
+
+# Align rownames of theta with filtered textdata
+theta_aligned <- theta[rownames(theta) %in% textdata_filtered$doc_id, ]
+
+# Optional: Verify the order of documents
+if (!all(rownames(theta_aligned) == textdata_filtered$doc_id)) {
+  # If the order doesn't match, reorder one to match the other
+  textdata_filtered <- textdata_filtered[match(rownames(theta_aligned), textdata_filtered$doc_id), ]
+}
+
+# Ensure they are now aligned and can be combined
+if (!all(rownames(theta_aligned) == textdata_filtered$doc_id)) {
+  stop("The document IDs still do not match. Please check the data alignment.")
+}
+
+# Step 2: Combine data
+topic_data <- data.frame(theta_aligned, opinion = textdata_filtered$opinion)
+
+# Step 3: Aggregate data
+topic_proportion_per_opinion <- aggregate(. ~ opinion, data = topic_data, FUN = mean)
+
+
+# get mean topic proportions per opinion
+# topic_proportion_per_opinion <- aggregate(theta, by = list(opinion = textdata$opinion), mean)
+# set topic names to aggregated columns
+colnames(topic_proportion_per_opinion)[2:(K+1)] <- topicNames
+# reshape data frame
+vizDataFrame <- melt(topic_proportion_per_opinion, id.vars = "opinion")
+
+```
+
+#Examine topic names
+
+```{r}
+#enframe(): Converts a named list into a dataframe.
+topics <- enframe(topicNames, name = "number", value = "text") %>% 
+  unnest(cols = c(text)) 
+  
+topics
+```
+
+### Review the topics and determine a 1-2 word label after reading the source documents.
+
+```{r}
+
+#Topic 1	2024 end content newstex word document reserv right novemb copyright
+
+theta2 <- as.data.frame(theta)
+
+topic1 <- theta2 %>% 
+  rownames_to_column(var = "file") |> # putting the rownames into a new column called file
+  mutate(file = str_remove(file, "^X"),  # Remove leading 'X'
+         line = str_extract(file, "(?<=\\.txt)\\.\\d+")) |>   # Extract number after .txt
+  mutate(file = str_remove(file, "\\.\\d+$")) |> 
+  rename(topic1 = '1') |> # looking at first topic: 2024 end content newstex word document reserv right novemb copyright
+  top_n(20, topic1) |> 
+  arrange(desc(topic1)) |>  
+  select(file, line, topic1) 
+
+
+```
+
+```{r}
+
+#add categories
+
+vizDataFrame <- vizDataFrame %>% 
+  mutate(category = case_when(
+    str_detect(variable,  "2024 end content newstex word document reserv right novemb copyright") ~ "copyright",
+    str_detect(variable, "women men movement sex south date korea feminist young marriag") ~ "gender_movement",
+    str_detect(variable, "group million busi year 2008 rate market student capit share") ~ "capitalism",
+    str_detect(variable, "trump peopl presid donald hanniti opinion biden state democrat vote") ~ "politics_election",
+     str_detect(variable, "news right elect abort social women bodi gender negat media") ~ "media_gender",
+    ))
+
+
+```
+
+# Fact Check and Validate Topics
+topic 1 copyright:"2024 end content newstex word document reserv right novemb copyright";
+topic 2 gender_movement: "women men movement sex south date korea feminist young marriag";
+topic 3 capitalism: "group million busi year 2008 rate market student capit share";
+topic 4 politics_election: "trump peopl presid donald hanniti opinion biden state democrat vote";
+topic 5 media_gender: "news right elect abort social women bodi gender negat media".
+
+## for topic 1: copyright
+```{r}
+theta2 <- as.data.frame(theta)
+
+copyright <- theta2 %>%
+  rename(copyright = '1') %>%
+  top_n(20, copyright) %>%
+  arrange(desc(copyright)) %>%
+  select(copyright)
+
+copyright <- tibble::rownames_to_column(copyright, "story_id")
+copyright$story_id <- gsub("^X", "", copyright$story_id)
+
+head(copyright$story_id, 20)
+```
+
+## for topic 2: gender_movement
+```{r}
+gender_movement <- theta2 %>%
+  rename(gender_movement = '2') %>%
+  top_n(20, gender_movement) %>%
+  arrange(desc(gender_movement)) %>%
+  select(gender_movement)
+
+gender_movement <- tibble::rownames_to_column(gender_movement, "story_id")
+gender_movement$story_id <- gsub("^X", "", gender_movement$story_id)
+
+head(gender_movement$story_id, 20)
+```
+
+## for topic 3: capitalism
+```{r}
+capitalism <- theta2 %>%
+  rename(capitalism = '3') %>%
+  top_n(20, capitalism) %>%
+  arrange(desc(capitalism)) %>%
+  select(capitalism)
+
+capitalism <- tibble::rownames_to_column(capitalism, "story_id")
+capitalism$story_id <- gsub("^X", "", capitalism$story_id)
+
+head(capitalism$story_id, 20)
+```
+
+## for topic 4: politics_election
+```{r}
+politics_election <- theta2 %>%
+  rename(politics_election = '4') %>%
+  top_n(20, politics_election) %>%
+  arrange(desc(politics_election)) %>%
+  select(politics_election)
+
+politics_election <- tibble::rownames_to_column(politics_election, "story_id")
+politics_election$story_id <- gsub("^X", "", politics_election$story_id)
+
+head(politics_election$story_id, 20)
+```
+
+## for topic 5: media_gender
+```{r}
+media_gender <- theta2 %>%
+  rename(media_gender = '5') %>%
+  top_n(20, media_gender) %>%
+  arrange(desc(media_gender)) %>%
+  select(media_gender)
+
+media_gender <- tibble::rownames_to_column(media_gender, "story_id")
+media_gender$story_id <- gsub("^X", "", media_gender$story_id)
+
+head(media_gender$story_id, 20)
+```
+
+
+#Figure 15: white_paper_topics_oct_19_2024
+
+```{r}
+# plot topic proportions per opinion as bar plot
+ggplot(vizDataFrame, aes(x=opinion, y=value, fill=category)) + 
+  geom_bar(stat = "identity") + ylab("proportion") + 
+  scale_fill_manual(values = paste0(alphabet(20), "FF"), name = "opinion") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+   scale_fill_manual(values=c("#9933FF",
+                              "red",
+                              "yellow",
+                              "darkblue",
+                              "green"))+
+  labs(title = "Common Narratives in 4B Movement News Coverage",
+       subtitle = "Five probable topics in press sample",
+       caption = "Aggregate mean topic proportions per opinion. Graphic by Yiran Zhang, 4-7-2025")
+
+```
+
+summary：
+For this assignment, I found five main topics. The first topic is capitalism, which includes keywords such as market, labor, and business. This suggests that the 4B movement is being discussed in relation to the economic situations in U.S. news coverage. The second topic is gender_movement, with keywords like women, men, South Korea, feminist, and movement. This topic appears to explain or define the 4B movement, introducing it to American readers. The third topic is media and gender, which includes terms such as abortion, social, body, and rights. This topic focuses on the key issues and debates of the movement, particularly in social media. The fourth topic is politics and elections, with keywords such as Trump, President, Biden, and vote. This indicates that American's 4B movement is highly related with the presidential elections. The last topic is copyright, including words like 2024, content, document, and newstex. These terms appear to be unrelated to the substance of the movement. Thus, I wonder, is there a way to identify and remove these entries from the raw data?
+
+In terms of trends over opinion, I divided the data into three opinion phases: before the election, during the election, and after the election. The key finding is that before the election, coverage focused on defining the movement and exploring its relation to the economics. During the election, political topics became more dominant. And after the election, the focus is the core themes of this movement in social media.
+

@@ -1,0 +1,146 @@
+---
+title: "KWIC_HW"
+author: "YZ"
+date: "2025-03-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+### 
+
+```{r}
+#install.packages("readtext")
+library(quanteda)
+library(readtext)
+library(tidyverse)
+
+```
+
+#Import your article text dataframe
+```{r}
+project <- read.csv("4B_FullArticles.csv")
+```
+
+
+```{r}
+
+# Create a corpus using the 'sentence' column as the text field
+my_corpus <- corpus(project, text_field = "sentence") # build a new corpus from the texts
+head(my_corpus)
+
+```
+
+## kwic
+
+```{r}
+
+# Tokenize the corpus
+my_tokens <- tokens(my_corpus)
+
+# Perform KWIC (Key Word in Context) search on the tokens
+quanteda_test <- kwic(my_tokens, pattern = "wrong", valuetype = "regex") %>% 
+  as.data.frame()
+
+quanteda_test2 <- kwic(my_tokens, phrase(c("wrong", "crazy", "anti-family", "unethical", "hate", "extreme", "crazy", "selfish", "toxic", "anti-men", "anti-social", "against tradition",  "brave", "independent", "empowered", "rational", "modern", "free", "freedom", "autonomy", "self-determined", "social progress" )), window = 50, valuetype = "regex") %>% as.data.frame() 
+
+write.csv(quanteda_test, "quanteda_test.csv")
+
+```
+
+
+# Link the results with the metadata
+```{r}
+#Strips out unique file name from article index 
+kwic_results <- quanteda_test2 |>  
+  mutate(matchrow = readr::parse_number(docname))
+
+metadata <- project
+
+# Join KWIC results with metadata 
+kwic_with_metadata <- kwic_results %>%
+  inner_join(project, by = c("matchrow"="X")) |> 
+  distinct(docname, .keep_all= TRUE) |> 
+  select(matchrow, title, from, to, pre, keyword, post, pattern, published_date, publication_location, company, publication_16, docname)
+```
+
+
+# Housecleaning
+```{r}
+
+#Eliminate duplication
+kwic_with_metadata  <- kwic_with_metadata  %>% 
+  distinct(docname, pre, keyword, post, title, published_date, publication_16) %>% 
+  rename('Beginning of Passage' = pre, 'End of Passage' = post, date = published_date, source = publication_16) 
+
+kwic_with_metadata_csv <- kwic_with_metadata  %>%
+  add_column(Code = NA) %>% 
+  add_column(Comments = NA) %>% 
+  select(docname, 'Beginning of Passage', keyword, 'End of Passage', source, date, Code, Comments)
+
+write_csv(kwic_with_metadata_csv, "kwic_with_metadata.csv")
+
+```
+
+
+### Then import the data into a google form and code away
+
+Sample Google Form:
+https://docs.google.com/forms/d/1iT49Tz6ZfJ67eURsVI79OVjbH8fWcIozFXZyhL7dXCY/edit
+
+Sample spreadsheet:
+https://docs.google.com/spreadsheets/d/1JZ7WkGkj-hs0XeBEo12ZxnTqLlwtjjiuMGSiuS0EnS8/edit?gid=310265245#gid=310265245
+
+
+Steps to link to a Google form
+1) Create a Google Form with the fields you want to import from the spreadsheet (kwic_with_metadata.csv)
+Create Paragraph questions
+"docname"              
+"Beginning of Passage" 
+"keyword"              
+"End of Passage"      
+"Newspaper"            
+"Date"
+"url"
+
+2) Get link
+https://docs.google.com/forms/d/e/1FAIpQLScJR-6mffrc17ZdoCc1qjpvRUL6H71EeW1h5qz_2LvILPb6Wg/viewform?usp=pp_url&entry.1101824497=Rob+Wells&entry.972664370=TODAY&entry.1301433784=WASHINGTON+POST&entry.91443670=START&entry.1665018793=WORD&entry.1496202882=FINISH
+
+
+Create a column where the link for each student project will go. The formula you want to use is =HYPERLINK(“URL”,”Click Here”).
+
+It will look something like this:
+=HYPERLINK(“https://docs.google.com/forms/d/e/1FAIpQLSc_I4u1oPbNpUFx9FT9qcq-AW1w7y1v0k5T-9virJg3XH6G9A/viewform?entry.792046611=Zada+Howarth%C2%A0&entry.189967737=How+relevant+is+Shakespeare?+Make+the+pop-culture+connections&entry.128488987″,”Click Here”)
+
+
+
+https://alicekeeler.com/2018/03/19/google-forms-pre-fill-answer/
+
+
+
+
+=HYPERLINK("https://docs.google.com/forms/d/e/1FAIpQLSek1beVd-ckbiX3w1AaIHSj3AjeTOtTmHd2ZM08mb5BBDTBFQ/viewform?usp=pp_url&entry.262647990=Rob&entry.1021580155="&E2&"&entry.847834668="&G2&"&entry.1352133755="&D2&"&entry.1266675087="&I2&"","Click for form")
+
