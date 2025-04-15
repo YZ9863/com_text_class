@@ -1,0 +1,102 @@
+
+
+
+
+Wellesley News: Wellesley College
+February 5, 2025 Wednesday
+
+
+University Wire
+Copyright 2025 UWIRE via U-Wire All Rights Reserved
+Section: NEWS; Pg. 1
+Length: 809 words
+Body
+
+
+The 4B movement, a radical feminist initiative originating in South Korea, challenges traditional gender dynamics by advocating for a complete rejection of relationships with men. The name 4B is derived from the Korean word "bi," meaning no, as each of the movement's four principles begin with this syllable. The key tenets of 4B include "bichulsan" (no giving birth), "bisekseu" (no heterosexual sex), "bihon" (no marrying men), and "biyeonae" (no dating men). The movement emerged in response to violence against women, online misogyny and laws promoting childbirth and marriage, which aim to address South Korea's incredibly low birth rate. 
+Following Donald Trump's return to the White House, many women online have begun promoting a variant of the 4B movement (or in English, the "4 No's") in the United States. This is in part due to the higher gender disparity among voters: according to exit polls, men preferred Trump 55% to 42% while women favored Harris 53% to 45%. This statistic reflects a sense of betrayal felt amongst many of the women and gender minorities who voted for Kamala Harris. Americans' mimicking of the 4B movement can be seen as an act of protest not just against Trump voters, but also Trump himself, who has been found liable for sexual abuse, faced numerous allegations of sexual harassment and assault, and has consistently made sexist remarks throughout his life.
+The implementation of a movement like 4B within Trump's America is not without significance -- it would provide a means of control over one's sexuality and personal relationships in the face of an administration seeking to restrict it.
+However, the actual effectiveness of adopting the 4B movement from South Korea should be questioned. South Korea and the United States are both culturally distinct, and social movements must be understood within the context of their development. In South Korea, the movement's gradual growth was primarily due to a mix of radical feminist forums and opposition to an influx of pro-natalist policies which do not currently exist to the same degree in the United States. In the United States, the reactionary discourse around the 4B movement quieted a week after the election in November.
+Additionally, the 4B movement in South Korea has faced criticism for its transphobia and misandry. Given the current rise of trans-exclusionary radical feminism in the United States, including in state and national legislatures, the movement's goals in the United States might accidentally serve to further attack and isolate transgender and nonbinary Americans (who, according to polling from the Human Rights Campaign, overwhelmingly voted for Harris). 
+While it might seem tempting to advocate for a complete separation from men in terms of sex and romance, we must ask: does further alienating them actually help the cause? In placing both the fault and burden of punishment for the election results on men, it continues the greater gender rift within the United States which has fueled the political tensions that many Americans are trying to address.  
+Contact the editors responsible for this article: Norah Catlin, Ivy Buck
+Anti-Trump Women's March in London, England, 2017. Image credit: Wikimedia Commons
+.sno-story-body p:not(.infographic-widget-container p, .imagelink-wrap p),
+.sno-collection-body p,
+.live-update-wrap p {
+font-size: 20px;
+line-height: 1.4em;
+margin-bottom: 15px;
+font-family: PT Serif;
+color: #000000;
+}
+.sno-story-body h1:not(.infographic-widget-container h1, .imagelink-wrap h1),
+.sno-story-body h2:not(.infographic-widget-container h2, .imagelink-wrap h2),
+.sno-story-body h3:not(.infographic-widget-container h3, .imagelink-wrap h3),
+.sno-story-body h4:not(.infographic-widget-container h4, .imagelink-wrap h4),
+.sno-story-body h5:not(.infographic-widget-container h5, .imagelink-wrap h5),
+.sno-story-body h6:not(.infographic-widget-container h6, .imagelink-wrap h6) {
+color: #000000;
+}
+.collection-tile-text {
+font-size: 20px;
+line-height: 1.4em;
+}
+.sno-story-body a, .sno-collection-body a, .live-update-wrap a {
+color: #002776;
+}
+.sno-story-body ul, .sno-story-body ol, .live-update-wrap ol {
+margin-bottom: 15px;
+font-family: PT Serif;
+color: #000000;
+}
+.sno-story-body li, .live-update-wrap li {
+font-size: 20px;
+line-height: 1.4em;
+}
+.sno-story-body {
+margin-bottom: 40px;
+}
+.sno-story-body .sno-network {
+background: #f3f3f3;
+color: #8b8b8b}
+.sno-story-body .sno-drop-cap > p:first-of-type:first-letter {
+color: #002776;
+font-size: 96px;
+padding-top: 3px;
+font-weight: normal;
+font-family: PT Serif;
+}
+.sno-story-body .sno-drop-cap-inverted > p:first-of-type:first-letter {
+background: #002776;
+font-size: 96px;
+padding-left: 8px;
+padding-right: 8px;
+padding-top: 8px;
+font-weight: normal;
+font-family: PT Serif;
+}
+@media only screen and (max-width: 800px) {
+.sno-story-body {
+margin-left: 20px;
+margin-right: 20px;
+}
+}
+@media only screen and (max-width: 600px) {
+Classification
+
+
+Language: ENGLISH
+
+Publication-Type: Newspaper
+
+Subject: FEMINISM & WOMEN'S RIGHTS (90%); GENDER & SEX DISCRIMINATION (89%); GENDER IDENTITY (89%); MISOGYNY (89%); NEGATIVE MISC NEWS (89%); NEGATIVE NEWS (89%); NEGATIVE SOCIETAL NEWS (89%); TRANSGENDER PERSONS (89%); ABUSE & NEGLECT (78%); COURTSHIP & DATING (78%); GENDER BASED VIOLENCE (78%); GENDER EQUALITY (78%); HUMAN RIGHTS ORGANIZATIONS (78%); MINORITY GROUPS (78%); NONBINARY PERSONS (78%); SEX & GENDER ISSUES (78%); WOMEN (78%); BIRTHS & BIRTH RATES (76%); PREGNANCY & CHILDBIRTH (76%); SEX OFFENSES (76%); SEXUAL ASSAULT (76%); SOCIETY, SOCIAL ASSISTANCE & LIFESTYLE (76%); CYBERHARASSMENT (75%); LEGISLATIVE BODIES (74%); POLLS & SURVEYS (74%); POPULATION CHARACTERISTICS (73%); SEXUAL HARASSMENT (71%); HUMAN RIGHTS (70%); INTERPERSONAL RELATIONSHIPS (63%)
+
+Person: DONALD TRUMP (79%); KAMALA HARRIS (79%)
+
+Geographic: SOUTH KOREA (95%); UNITED STATES (94%); Wellesley; MA
+
+Load-Date: February 5, 2025
+
+
+End of Document
