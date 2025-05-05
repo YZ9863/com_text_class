@@ -17,6 +17,14 @@ This study draws on data from newspaper articles. I searched “4B movement” i
 
 The analysis includes two parts. First, I clean the data and provide the descriptive results of my sample. Second, for the preliminary analysis, I conducted bigrams and sentiment analysis, content analysis and topic analysis.
 
+## RQ
+1: What is the narratives?  How does they change over time?
+3: What's the main sentiment? How did those sentiments change over time?
+5: What's the relationship between 4b Movement and the rise of Trump as president?
+
+
+
+
 #### Bigrams and sentiment analysis
 
 Research Questions: RQ1: What are the most common word pairs in the reports on 4B movement? RQ2: What sentiments can be identified?
@@ -36,6 +44,8 @@ RQ3: The type of coverage: a) news: section contains the keywords of news; b) op
 #### Topic analysis
 
 Research Questions RQ1: What are the key themes among those articles on the 4B movement? RQ2: How do these key themes vary across time periods (before, during, and after the presidential election)?
+
+ bigrams & topic models
 
 ## Sample & descriptive statistics
 
